@@ -19,24 +19,37 @@
 
 // document.body.appendChild(div)
 
+document.componentRegistry = {};
+document.nextId = 0;
+
 const blogPostData = {
     author: 'Brandon Smith',
     title: 'A CSS Trick',
     body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
 };
 
-class BlogPost {
+class Component {
+    constructor() {
+      this._id = ++document.nextId;
+      document.componentRegistry[this._id] = this;
+    }
+  }
+
+class BlogPost extends Component {
     constructor(props) {
+        super(props)
         this.state = {
             author: props.author,
             title: props.title,
-            body: props.body
+            body: props.body,
+            changed: ''
         }
     }
 
     setBody(newBody) {
         console.log('newBody in setBody: ', newBody)
         this.state.body = newBody;
+        update()
     }
 
     setConsole() {
@@ -48,14 +61,20 @@ class BlogPost {
             <div class="post">
                 <h1>${this.state.title}</h1>
                 <h3>By ${this.state.author}</h3>
-                <p>${this.state.body}</p>
+                <textarea onchange="document.componentRegistry[${this._id}].setBody(this.value)">${this.state.body}</textarea>
+                <h1>${this.state.changed}</h1>
             </div>
         `;
     }
 
 }
 
+
 let blogPostComponent = new BlogPost(blogPostData)
+
+function update() {
+    document.querySelector('body').innerHTML = blogPostComponent.render();
+}
 
 let inputElement = document.querySelector('.input')
 let paragraphElement = document.querySelector('.paragraph')
