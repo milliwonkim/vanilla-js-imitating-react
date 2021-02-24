@@ -35,42 +35,53 @@ class Component {
     }
   }
 
-class BlogPost extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            author: props.author,
-            title: props.title,
-            body: props.body,
-            changed: ''
-        }
-    }
+  class BlogPost extends Component {
 
-    setBody(newBody) {
-        console.log('newBody in setBody: ', newBody)
-        this.state.body = newBody;
-        update()
-    }
+    constructor(props, children) {
+      super(props);
 
-    setConsole() {
-        console.log('this.state.body: ',this.state.body)
+      this.children = children;
+      this.state = {
+        author: props.author,
+        title: props.title,
+        body: props.body
+      }
     }
 
     render() {
-        return `
-            <div class="post">
+      return `<div class="post">
                 <h1>${this.state.title}</h1>
                 <h3>By ${this.state.author}</h3>
-                <textarea onchange="document.componentRegistry[${this._id}].setBody(this.value)">${this.state.body}</textarea>
-                <h1>${this.state.changed}</h1>
-            </div>
-        `;
+                <textarea onchange="document.componentRegistry[${this._id}].setBody(this.value)">
+                  ${this.state.body}
+                </textarea>
+                <div>
+                  ${this.children.render()}
+                </div>
+              </div>`;
     }
 
+    setBody(newBody) {
+      this.state.body = newBody;
+      update();
+    }
+
+  }
+
+class adComponents {
+  render() {
+    return (
+      `
+        <h1>hi</h1>
+      `
+    )
+  }
 }
 
+let anotherComponent = new adComponents;
 
-let blogPostComponent = new BlogPost(blogPostData)
+let blogPostComponent = new BlogPost(blogPostData, anotherComponent)
+console.log('blogPostComponent: ',blogPostComponent)
 
 function update() {
     document.querySelector('body').innerHTML = blogPostComponent.render();
@@ -86,5 +97,7 @@ inputElement.addEventListener('change', (event) => {
     paragraphElement.innerHTML = blogPostComponent.state.body
     blogPostComponent.setConsole()
 })
+
+console.log('blogPostComponent.render()',blogPostComponent.render())
 
 document.querySelector('#root').innerHTML = blogPostComponent.render()
